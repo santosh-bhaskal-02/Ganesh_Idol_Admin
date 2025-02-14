@@ -44,6 +44,12 @@ const Sidebar = () => {
             isOpen={isSidebarOpen}
           />
           <SidebarItem
+            to="/dashboard/idols"
+            icon={<FaUserPlus size={20} />}
+            text="Idols"
+            isOpen={isSidebarOpen}
+          />
+          <SidebarItem
             to="/dashboard/Addidol"
             icon={<FaUserPlus size={20} />}
             text="Add New Idol"
