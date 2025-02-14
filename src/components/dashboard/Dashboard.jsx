@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Sidebar from "./Sidebar/Sidebar";
 import Addidol from "./Sidebar/Addidol";
+import AddCategory from "./Sidebar/AddCategory";
 import Users from "./Sidebar/Users";
 import Notifications from "./Sidebar/Notifications";
 import Settings from "./Sidebar/Settings";
@@ -16,6 +17,7 @@ const Dashboard = () => {
         <Routes>
           <Route path="/" element={<HomeDashboard />}></Route>
           <Route path="/Addidol" element={<Addidol />}></Route>
+          <Route path="/AddCategory" element={<AddCategory />}></Route>
           <Route path="/Users" element={<Users />}></Route>
           <Route path="/Notifications" element={<Notifications />}></Route>
           <Route path="/Settings" element={<Settings />}></Route>

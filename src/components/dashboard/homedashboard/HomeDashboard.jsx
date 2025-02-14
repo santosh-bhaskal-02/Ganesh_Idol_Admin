@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Chart as ChartJS,
   ArcElement,
@@ -12,6 +12,12 @@ import {
 } from "chart.js";
 import { Pie, Bar, Line } from "react-chartjs-2";
 
+import axios from "axios";
+import Cookies from "js-cookie";
+//import AlertBox from "./AlertBox";
+
+const apiUrl = import.meta.env.VITE_BACK_END_URL;
+
 ChartJS.register(
   ArcElement,
   Tooltip,
@@ -24,6 +30,8 @@ ChartJS.register(
 );
 
 const HomeDashboard = () => {
+  const [idolCount, setIdolCount] = useState(null);
+
   const pieData = {
     labels: ["Sold", "Available", "Reserved"],
     datasets: [
@@ -58,43 +66,64 @@ const HomeDashboard = () => {
     ],
   };
 
+  useEffect(() => {
+    const fetchIdolCount = async () => {
+      const authToken = Cookies.get("adminAuthToken");
+      if (!authToken) {
+        console.error("No auth token found.");
+        return;
+      }
+
+      try {
+        const response = await axios.get(`${apiUrl}/api/products/get/count`, {
+          headers: { Authorization: `Bearer ${authToken}` },
+        });
+
+        if (!response.data) {
+          setAlert({
+            type: "error",
+            title: "Oops!",
+            message: "Something went wrong. Try again.",
+          });
+          return;
+        }
+        console.log(response.data);
+        setIdolCount(response.data.productCount);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        setAlert({
+          type: "error",
+          title: "Oops!",
+          message: "Failed to fetch categories.",
+        });
+      }
+    };
+
+    fetchIdolCount();
+  }, []);
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
-      {/* Header with Action Buttons */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">
-          Ganesh Museum Dashboard
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-800">Ganesh Museum Dashboard</h1>
       </div>
 
-      {/* Stat Cards Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        <StatCard title="Total Idol" value="500" color="bg-orange-500" />
+        <StatCard title="Total Idol" value={idolCount} color="bg-orange-500" />
+
         <StatCard title="Total Idol Sold" value="50" color="bg-pink-500" />
-        <StatCard title="Total User" value="173" color="bg-blue-500" />
-        <StatCard
-          title="This Year Sold Idols"
-          value="400"
-          color="bg-purple-500"
-        />
-        <StatCard
-          title="Total Revenue Generated"
-          value="$50,000"
-          color="bg-indigo-500"
-        />
+
+        <StatCard title="Total User" value="5" color="bg-blue-500" />
+        <StatCard title="This Year Sold Idols" value="40" color="bg-purple-500" />
+        <StatCard title="Total Revenue Generated" value="20,000" color="bg-indigo-500" />
         <StatCard
           title="Most Popular Idol"
           value="Ganesh Idol - Gold Edition"
           color="bg-red-500"
         />
-        <StatCard
-          title="Customer Satisfaction"
-          value="95%"
-          color="bg-yellow-500"
-        />
+        <StatCard title="Customer Satisfaction" value="95%" color="bg-yellow-500" />
       </div>
 
-      {/* Business Survey & Sales Trend */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         <div className="bg-white p-6 rounded-lg shadow-lg">
           <h3 className="text-xl font-bold mb-4">Business Survey</h3>
@@ -119,7 +148,6 @@ const HomeDashboard = () => {
         </div>
       </div>
 
-      {/* Charts Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         <div className="bg-white p-6 rounded-lg shadow-lg">
           <h3 className="text-xl font-bold mb-4">Idol Distribution</h3>
@@ -132,7 +160,6 @@ const HomeDashboard = () => {
         </div>
       </div>
 
-      {/* Purchase History */}
       <div className="bg-white p-6 mt-6 rounded-lg shadow-lg">
         <h3 className="text-xl font-bold mb-4">Purchase History</h3>
         <table className="w-full text-left border-collapse">
@@ -170,7 +197,6 @@ const HomeDashboard = () => {
   );
 };
 
-// Reusable Stat Card Component
 const StatCard = ({ title, value, color }) => (
   <div className={`${color} text-white p-6 rounded-lg shadow-lg`}>
     <h2 className="text-lg font-semibold">{title}</h2>
@@ -178,7 +204,6 @@ const StatCard = ({ title, value, color }) => (
   </div>
 );
 
-// Reusable Purchase Row Component
 const PurchaseRow = ({ customer, project, invoice, amount }) => (
   <tr className="border-b">
     <td className="p-3">{customer}</td>

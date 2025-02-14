@@ -1,12 +1,58 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import Cookies from "js-cookie";
+import AlertBox from "./AlertBox";
+
+const apiUrl = import.meta.env.VITE_BACK_END_URL;
 
 const Addidol = () => {
+  const [category, setCategory] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState(null);
+
+  useEffect(() => {
+    const fetchCategory = async () => {
+      const authToken = Cookies.get("adminAuthToken");
+      if (!authToken) {
+        console.error("No auth token found.");
+        return;
+      }
+
+      try {
+        const response = await axios.get(`${apiUrl}/api/products/category/fetch`, {
+          headers: { Authorization: `Bearer ${authToken}` },
+        });
+
+        if (!response.data) {
+          setAlert({
+            type: "error",
+            title: "Oops!",
+            message: "Something went wrong. Try again.",
+          });
+          return;
+        }
+
+        setCategory(response.data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        setAlert({
+          type: "error",
+          title: "Oops!",
+          message: "Failed to fetch categories.",
+        });
+      }
+    };
+
+    fetchCategory();
+  }, []);
+
   const [formData, setFormData] = useState({
-    idolName: "",
-    quantity: 1,
-    type: "",
+    title: "",
+    stock: 1,
+    category: "",
     size: 1,
     price: "",
+    description: "",
     image: null,
   });
 
@@ -26,69 +72,134 @@ const Addidol = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Data Submitted:", formData);
-    // Handle form submission logic here
+    setLoading(true);
+
+    const authToken = Cookies.get("adminAuthToken");
+    const adminId = Cookies.get("adminId");
+
+    if (!adminId || !authToken) {
+      setAlert({
+        type: "error",
+        title: "Oops!",
+        message: "Authentication failed. Please log in again.",
+      });
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.image) {
+      setAlert({ type: "error", title: "Oops!", message: "Please upload an image." });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("title", formData.title);
+      formDataToSend.append("stock", formData.stock);
+      formDataToSend.append("category", formData.category);
+      formDataToSend.append("size", formData.size);
+      formDataToSend.append("price", formData.price);
+      formDataToSend.append("description", formData.description);
+      formDataToSend.append("image", formData.image);
+
+      await axios.post(`${apiUrl}/api/products/add`, formDataToSend, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      setAlert({
+        type: "success",
+        title: "Successful!",
+        message: "Idol added successfully.",
+      });
+
+      setFormData({
+        title: "",
+        stock: 1,
+        category: "",
+        size: 1,
+        price: "",
+        description: "",
+        image: null,
+      });
+    } catch (error) {
+      setAlert({ type: "error", title: "Oops!", message: "Idol not added. Try again." });
+      console.error("Error uploading product:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-6">
+      {alert && (
+        <div className="fixed inset-0 flex justify-center items-center bg-gray-800 bg-opacity-50">
+          <AlertBox
+            type={alert.type}
+            title={alert.title}
+            message={alert.message}
+            onClick={() => setAlert(null)}
+          />
+        </div>
+      )}
+
       <div className="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-lg border border-gray-300">
         <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
           Add New Idol
         </h2>
-        <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
-        >
+
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Idol Name
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Idol Name</label>
               <input
                 type="text"
-                name="idolName"
-                value={formData.idolName}
+                name="title"
+                value={formData.title}
                 onChange={handleChange}
                 required
                 className="mt-1 px-4 py-3 w-full border rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Enter idol name"
               />
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Quantity
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Stock</label>
               <input
                 type="number"
-                name="quantity"
-                value={formData.quantity}
+                name="stock"
+                value={formData.stock}
                 onChange={handleChange}
                 required
                 className="mt-1 px-4 py-3 w-full border rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter quantity"
+                placeholder="Enter stock quantity"
               />
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Select Type
+                Select Category
               </label>
               <select
-                name="type"
-                value={formData.type}
+                name="category"
+                value={formData.category}
                 onChange={handleChange}
                 required
-                className="mt-1 px-4 py-3 w-full border rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="">Select Type</option>
-                <option value="bronze">Bronze</option>
-                <option value="silver">Silver</option>
-                <option value="gold">Gold</option>
-                <option value="wood">Wood</option>
+                className="mt-1 px-4 py-3 w-full border rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <option value="">Select Category</option>
+                {category.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
               </select>
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Select Size (1 - 25 feet)
@@ -98,8 +209,7 @@ const Addidol = () => {
                 value={formData.size}
                 onChange={handleChange}
                 required
-                className="mt-1 px-4 py-3 w-full border rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              >
+                className="mt-1 px-4 py-3 w-full border rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
                 {[...Array(25)].map((_, index) => (
                   <option key={index} value={index + 1}>
                     {index + 1} feet
@@ -107,10 +217,9 @@ const Addidol = () => {
                 ))}
               </select>
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Price
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Price</label>
               <input
                 type="number"
                 name="price"
@@ -122,7 +231,22 @@ const Addidol = () => {
               />
             </div>
           </div>
+
           <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Add Description
+              </label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                required
+                className="mt-1 px-4 py-3 w-full border rounded-lg shadow-sm focus:outline-none"
+                placeholder="Enter description"
+              />
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Upload Image
@@ -136,12 +260,13 @@ const Addidol = () => {
                 className="mt-1 px-4 py-3 w-full border rounded-lg shadow-sm focus:outline-none"
               />
             </div>
+
             <div className="flex justify-center items-center">
               <button
                 type="submit"
-                className="bg-gradient-to-r from-blue-500 to-green-500 text-white py-3 px-6 rounded-lg shadow-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                Submit
+                disabled={loading}
+                className="bg-gradient-to-r from-blue-500 to-green-500 text-white py-3 px-6 rounded-lg shadow-lg hover:opacity-90 focus:outline-none">
+                {loading ? "Submitting..." : "Submit"}
               </button>
             </div>
           </div>

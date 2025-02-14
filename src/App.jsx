@@ -8,11 +8,12 @@ import Login from "./components/authentication/Login";
 import SignUp from "./components/authentication/SignUp";
 import ForgotPassword from "./components/authentication/ForgotPassword";
 import LandingPage from "./components/Home/Home.jsx";
+import { AuthProvider } from "./components/AuthContext/AuthContext.jsx";
 
 function App() {
   return (
     <Router>
-      <>
+      <AuthProvider>
         <Navbar />
         <div className="w-full">
           <Routes>
@@ -22,9 +23,10 @@ function App() {
             <Route path="/SignUp" element={<SignUp />} />
             <Route path="/ForgotPassword" element={<ForgotPassword />} />
           </Routes>
+
           <Footer />
         </div>
-      </>
+      </AuthProvider>
     </Router>
   );
 }
