@@ -19,14 +19,14 @@ const Users = () => {
           headers: { Authorization: `Bearer ${authToken}` },
         });
 
-        if (!Array.isArray(response.data)) {
+        if (!Array.isArray(response.data.usersList)) {
           console.error("Unexpected API response:", response.data);
           setUsers([]);
           return;
         }
 
-        console.log("user", response.data);
-        setUsers(response.data);
+        console.log("user", response.data.usersList);
+        setUsers(response.data.usersList);
       } catch (error) {
         console.error("Error fetching users:", error);
         alert("Failed to fetch users.");

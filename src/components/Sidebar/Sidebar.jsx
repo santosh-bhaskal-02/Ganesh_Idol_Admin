@@ -1,16 +1,17 @@
 import React, { useState } from "react";
 import {
-  FaTachometerAlt,
-  FaUserPlus,
-  FaUsers,
-  FaClipboardList,
-  FaTruck,
-  FaBell,
-  FaCog,
-  FaBars,
-  FaTimes,
-  FaLayerGroup,
-} from "react-icons/fa";
+  LayoutDashboard,
+  SquarePlus,
+  Users,
+  PackageCheck,
+  Truck,
+  Bell,
+  Settings,
+  Menu,
+  X,
+  Layers,
+  Package
+} from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
@@ -20,75 +21,74 @@ const Sidebar = () => {
 
   return (
     <div className="">
-      {/* Sidebar */}
       <div
         className={`h-full bg-gradient-to-b from-gray-900 to-gray-700 text-white transition-all duration-300 
           shadow-lg ${isSidebarOpen ? "w-64" : "w-16"}`}>
         <button
           onClick={toggleSidebar}
           className="text-white bg-gray-900 p-2 rounded-lg md:hidden z-50">
-          {isSidebarOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+          {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 
         <div className="flex items-center justify-between p-4 border-b border-gray-600">
           <button onClick={toggleSidebar} className="hidden md:block">
-            {isSidebarOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+            {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
 
         <ul className="mt-4 space-y-2">
           <SidebarItem
             to="/dashboard"
-            icon={<FaTachometerAlt size={20} />}
+            icon={<LayoutDashboard size={20} />}
             text="Dashboard"
             isOpen={isSidebarOpen}
           />
           <SidebarItem
             to="/dashboard/idols"
-            icon={<FaUserPlus size={20} />}
+            icon={<Package size={20} />}
             text="Idols"
             isOpen={isSidebarOpen}
           />
           <SidebarItem
             to="/dashboard/Addidol"
-            icon={<FaUserPlus size={20} />}
+            icon={<SquarePlus size={20} />}
             text="Add New Idol"
             isOpen={isSidebarOpen}
           />
           <SidebarItem
             to="/dashboard/AddCategory"
-            icon={<FaLayerGroup size={20} />}
+            icon={<Layers size={20} />}
             text="Add Category"
             isOpen={isSidebarOpen}
           />
 
           <SidebarItem
             to="/dashboard/Users"
-            icon={<FaUsers size={20} />}
+            icon={<Users size={20} />}
             text="Users"
             isOpen={isSidebarOpen}
           />
           <SidebarItem
             to="/dashboard/Orders"
-            icon={<FaClipboardList size={20} />}
+            icon={<PackageCheck size={20} />}
             text="Orders"
             isOpen={isSidebarOpen}
           />
           <SidebarItem
             to="/dashboard/Deliveries"
-            icon={<FaTruck size={20} />}
+            icon={<Truck size={20} />}
             text="Deliveries"
             isOpen={isSidebarOpen}
           />
           <SidebarItem
             to="/dashboard/Notifications"
-            icon={<FaBell size={20} />}
+            icon={<Bell size={20} />}
             text="Notifications"
             isOpen={isSidebarOpen}
           />
           <SidebarItem
             to="/dashboard/Settings"
-            icon={<FaCog size={20} />}
+            icon={<Settings size={20} />}
             text="Settings"
             isOpen={isSidebarOpen}
           />

@@ -62,6 +62,7 @@ const Addidol = () => {
       ...prevState,
       [name]: value,
     }));
+    console.log(formData.category);
   };
 
   const handleFileChange = (e) => {
